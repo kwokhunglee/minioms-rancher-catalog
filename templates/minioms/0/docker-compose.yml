@@ -1,0 +1,267 @@
+version: '2'
+services:
+  filebeat-pms:
+    image: 192.168.10.10:8082/filebeat:6.1.2-201801191149
+    entrypoint:
+    - /run.sh
+    stdin_open: true
+    tty: true
+    volumes_from:
+    - pms
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.container.hostname_override: container_name
+  static:
+    image: 192.168.10.10:8082/static:0.0.0
+    stdin_open: true
+    entrypoint:
+    - /run.sh
+    volumes:
+    - /mnt/tomcat8/logs
+    tty: true
+    labels:
+      app: static
+      io.rancher.container.start_once: 'true'
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:container_label_ne: app=static
+  bbb:
+    mem_limit: 2147483648
+    image: 192.168.10.10:8082/basic:0.0.0
+    stdin_open: true
+    entrypoint:
+    - /mnt/tomcat8/bin/catalina.sh
+    - run
+    volumes:
+    - /mnt/tomcat8/logs
+    tty: true
+    labels:
+      app: bbb
+      io.rancher.container.start_once: 'true'
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.pull_image: always
+  nginx:
+    image: 192.168.10.10:8082/nginx-201801171721
+    stdin_open: true
+    entrypoint:
+    - /run.sh
+    volumes:
+    - /mnt/tomcat8/logs
+    tty: true
+    labels:
+      app: nginx
+      io.rancher.container.start_once: 'true'
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:container_label_ne: app=nginx
+  filebeat-inventory:
+    image: 192.168.10.10:8082/filebeat:6.1.2-201801191149
+    entrypoint:
+    - /run.sh
+    stdin_open: true
+    tty: true
+    volumes_from:
+    - inventory
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.container.hostname_override: container_name
+  filebeat-jst:
+    image: 192.168.10.10:8082/filebeat:6.1.2-201801191149
+    entrypoint:
+    - /run.sh
+    stdin_open: true
+    tty: true
+    volumes_from:
+    - jst
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.container.hostname_override: container_name
+  filebeat-gateway:
+    image: 192.168.10.10:8082/filebeat:6.1.2-201801191149
+    entrypoint:
+    - /run.sh
+    stdin_open: true
+    tty: true
+    volumes_from:
+    - gateway
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.container.hostname_override: container_name
+  jst:
+    image: 192.168.10.10:8082/jst:0.0.0
+    stdin_open: true
+    entrypoint:
+    - /mnt/tomcat8/bin/catalina.sh
+    - run
+    volumes:
+    - /mnt/tomcat8/logs
+    tty: true
+    labels:
+      app: jst
+      io.rancher.container.start_once: 'true'
+      io.rancher.sidekicks: filebeat-jst
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:container_label_ne: app=jst
+  inventory:
+    image: 192.168.10.10:8082/inventory:0.0.0
+    stdin_open: true
+    entrypoint:
+    - /mnt/tomcat8/bin/catalina.sh
+    - run
+    volumes:
+    - /mnt/tomcat8/logs
+    tty: true
+    labels:
+      app: inventory
+      io.rancher.container.start_once: 'true'
+      io.rancher.sidekicks: filebeat-inventory
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:container_label_ne: app=inventory
+  dubbo-admin:
+    image: 192.168.10.10:8082/tomcat:dubbo-admin-201801160921
+    stdin_open: true
+    entrypoint:
+    - /mnt/tomcat/bin/catalina.sh
+    - run
+    tty: true
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.container.start_once: 'true'
+  filebeat-basic:
+    image: 192.168.10.10:8082/filebeat:6.1.2-201801191149
+    entrypoint:
+    - /run.sh
+    stdin_open: true
+    tty: true
+    volumes_from:
+    - basic
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.container.hostname_override: container_name
+  job-admin:
+    image: 192.168.10.10:8082/job-admin:0.0.1
+    stdin_open: true
+    entrypoint:
+    - /mnt/tomcat8/bin/catalina.sh
+    - run
+    tty: true
+    labels:
+      io.rancher.container.pull_image: always
+  filebeat-orders:
+    image: 192.168.10.10:8082/filebeat:6.1.2-201801191149
+    entrypoint:
+    - /run.sh
+    stdin_open: true
+    tty: true
+    volumes_from:
+    - orders
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.container.hostname_override: container_name
+  pms:
+    mem_limit: 2147483648
+    image: 192.168.10.10:8082/pms:0.0.0
+    stdin_open: true
+    entrypoint:
+    - /mnt/tomcat8/bin/catalina.sh
+    - run
+    volumes:
+    - /mnt/tomcat8/logs
+    tty: true
+    labels:
+      app: pms
+      io.rancher.container.start_once: 'true'
+      io.rancher.sidekicks: filebeat-pms
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:container_label_ne: app=pms
+  mysql:
+    image: rancher/external-service
+  orders:
+    image: 192.168.10.10:8082/orders:0.0.0
+    stdin_open: true
+    entrypoint:
+    - /mnt/tomcat8/bin/catalina.sh
+    - run
+    volumes:
+    - /mnt/tomcat8/logs
+    tty: true
+    labels:
+      app: orders
+      io.rancher.container.start_once: 'true'
+      io.rancher.sidekicks: filebeat-orders
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:container_label_ne: app=orders
+  filebeat-wms:
+    image: 192.168.10.10:8082/filebeat:6.1.2-201801191149
+    entrypoint:
+    - /run.sh
+    stdin_open: true
+    tty: true
+    volumes_from:
+    - wms
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.container.hostname_override: container_name
+  basic:
+    mem_limit: 2147483648
+    image: 192.168.10.10:8082/basic:0.0.0
+    stdin_open: true
+    entrypoint:
+    - /mnt/tomcat8/bin/catalina.sh
+    - run
+    volumes:
+    - /mnt/tomcat8/logs
+    tty: true
+    labels:
+      app: basic
+      io.rancher.container.start_once: 'true'
+      io.rancher.sidekicks: filebeat-basic
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:container_label_ne: app=basic
+  wms:
+    image: 192.168.10.10:8082/wms:0.0.0
+    stdin_open: true
+    entrypoint:
+    - /mnt/tomcat8/bin/catalina.sh
+    - run
+    volumes:
+    - /mnt/tomcat8/logs
+    tty: true
+    labels:
+      app: wms
+      io.rancher.container.start_once: 'true'
+      io.rancher.sidekicks: filebeat-wms
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:container_label_ne: app=wms
+  gateway:
+    image: 192.168.10.10:8082/gateway:0.0.0
+    stdin_open: true
+    entrypoint:
+    - /mnt/tomcat8/bin/catalina.sh
+    - run
+    volumes:
+    - /mnt/tomcat8/logs
+    tty: true
+    labels:
+      app: gateway
+      io.rancher.container.start_once: 'true'
+      io.rancher.sidekicks: filebeat-gateway
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:container_label_ne: app=gateway
+  disconf-nginx:
+    image: 192.168.10.10:8082/tomcat:disconf-201810160901
+    stdin_open: true
+    working_dir: /
+    entrypoint:
+    - ./run.sh
+    tty: true
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.container.start_once: 'true'
