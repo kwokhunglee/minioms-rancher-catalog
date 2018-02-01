@@ -1,0 +1,115 @@
+version: '2'
+services:
+  filebeat-pms:
+    scale: 2
+    start_on_create: true
+  static:
+    scale: 2
+    start_on_create: true
+  bbb:
+    scale: 2
+    start_on_create: true
+  nginx:
+    scale: 1
+    start_on_create: true
+  filebeat-inventory:
+    scale: 2
+    start_on_create: true
+  filebeat-jst:
+    scale: 2
+    start_on_create: true
+  filebeat-gateway:
+    scale: 2
+    start_on_create: true
+  jst:
+    scale: 2
+    start_on_create: true
+  inventory:
+    scale: 2
+    start_on_create: true
+    health_check:
+      response_timeout: 2000
+      healthy_threshold: 2
+      recreate_on_quorum_strategy_config:
+        quorum: 1
+      port: 80
+      unhealthy_threshold: 3
+      initializing_timeout: 60000
+      interval: 2000
+      strategy: recreateOnQuorum
+      request_line: GET "/open/check/info.op" "HTTP/1.0"
+      reinitializing_timeout: 60000
+  dubbo-admin:
+    scale: 1
+    start_on_create: true
+  filebeat-basic:
+    scale: 2
+    start_on_create: true
+  job-admin:
+    scale: 1
+    start_on_create: true
+  filebeat-orders:
+    scale: 2
+    start_on_create: true
+  pms:
+    drain_timeout_ms: 30000
+    scale: 2
+    start_on_create: true
+    health_check:
+      healthy_threshold: 2
+      response_timeout: 2000
+      recreate_on_quorum_strategy_config:
+        quorum: 1
+      port: 80
+      unhealthy_threshold: 3
+      initializing_timeout: 60000
+      interval: 2000
+      strategy: recreateOnQuorum
+      request_line: GET "/open/check/info.op" "HTTP/1.0"
+      reinitializing_timeout: 60000
+  mysql:
+    external_ips:
+    - 10.43.0.18
+    start_on_create: true
+  orders:
+    scale: 2
+    start_on_create: true
+    health_check:
+      response_timeout: 2000
+      healthy_threshold: 2
+      recreate_on_quorum_strategy_config:
+        quorum: 1
+      port: 80
+      unhealthy_threshold: 3
+      initializing_timeout: 60000
+      interval: 2000
+      strategy: recreateOnQuorum
+      request_line: GET "/open/check/info.op" "HTTP/1.0"
+      reinitializing_timeout: 60000
+  filebeat-wms:
+    scale: 2
+    start_on_create: true
+  basic:
+    scale: 2
+    start_on_create: true
+  wms:
+    scale: 2
+    start_on_create: true
+    health_check:
+      response_timeout: 2000
+      healthy_threshold: 2
+      recreate_on_quorum_strategy_config:
+        quorum: 1
+      port: 80
+      unhealthy_threshold: 3
+      initializing_timeout: 60000
+      interval: 2000
+      strategy: recreateOnQuorum
+      request_line: GET "/open/check/info.op" "HTTP/1.0"
+      reinitializing_timeout: 60000
+  gateway:
+    scale: 2
+    start_on_create: true
+  disconf-nginx:
+    scale: 1
+    start_on_create: true
