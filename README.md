@@ -1,0 +1,1 @@
+# minioms-rancher-catalog
